@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buyer Dashboard - Real Estate System</title>
+
+  <style>
+    /* General Resets & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #e6f0fa, #ffffff); /* Soft gradient background */
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Back Arrow (Logout Button) */
+    .back-arrow { /* Re-purposing back-arrow for logout */
+      font-size: 1.1em;
+      padding: 12px 25px;
+      cursor: pointer;
+      color: #e74c3c; /* Red for logout */
+      background-color: #ecf0f1;
+      border-bottom: 1px solid #dcdcdc;
+      text-decoration: none;
+      display: inline-block;
+      position: absolute;
+      top: 20px;
+      right: 20px; /* Positioned to the right for logout */
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+      z-index: 10;
+    }
+
+    .back-arrow:hover {
+      background-color: #fbe9e7; /* Lighter red background on hover */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      color: #c0392b;
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 20px;
+    }
+
+    .logo img {
+      max-width: 120px;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Buyer Container */
+    .buyer-container {
+      max-width: 1200px; /* Wider container for properties */
+      width: 95%;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      margin-bottom: 40px;
+      opacity: 0; /* Initial state for JS animation */
+      transform: translateY(20px); /* Initial state for JS animation */
+    }
+
+    .buyer-container h1 {
+      font-size: 2.8em;
+      color: #34495e;
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .buyer-container h1::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background-color: #3498db;
+      border-radius: 2px;
+    }
+
+    /* Search Bar */
+    .search-bar {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-bar input {
+      flex-grow: 1;
+      max-width: 500px;
+      padding: 12px 15px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      font-size: 1.1em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+      outline: none;
+    }
+
+    .search-bar button {
+      padding: 12px 25px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .search-bar button:hover {
+      background-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    /* Property Grid */
+    #property-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .property-card {
+      background: #f0f8ff; /* Light blue background for cards */
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+      text-align: left;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .property-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
+    .property-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .property-card .info {
+      padding: 20px;
+      flex-grow: 1; /* Allow info section to grow */
+      display: flex;
+      flex-direction: column;
+    }
+
+    .property-card .info h3 {
+      font-size: 1.5em;
+      color: #34495e;
+      margin-bottom: 10px;
+    }
+
+    .property-card .info p {
+      font-size: 0.95em;
+      color: #555;
+      margin-bottom: 5px;
+    }
+
+    .property-card .info .price {
+      font-size: 1.3em;
+      font-weight: 700;
+      color: #27ae60; /* Green for price */
+      margin-top: 10px;
+      margin-bottom: 15px;
+    }
+
+    .property-card .info .description {
+      font-size: 0.9em;
+      color: #777;
+      line-height: 1.5;
+      margin-top: auto; /* Pushes description to the bottom */
+    }
+
+    .property-card .actions {
+      padding: 20px;
+      border-top: 1px solid #e0e0e0;
+      background-color: #f8f8f8;
+    }
+
+    .property-card .actions button {
+      width: 100%;
+      padding: 12px;
+      background-color: #2ecc71; /* Green for buy button */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1em;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .property-card .actions button:hover {
+      background-color: #27ae60;
+      transform: translateY(-2px);
+    }
+
+    /* No Results Message */
+    #no-results {
+      text-align: center;
+      color: #777;
+      font-size: 1.2em;
+      margin-top: 50px;
+      display: none; /* Hidden by default */
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .buyer-container {
+        padding: 30px;
+      }
+      .buyer-container h1 {
+        font-size: 2.4em;
+      }
+      #property-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .back-arrow {
+        top: 15px;
+        right: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+      }
+      .logo {
+        margin-bottom: 20px;
+      }
+      .logo img {
+        max-width: 100px;
+      }
+      .buyer-container {
+        padding: 25px;
+      }
+      .buyer-container h1 {
+        font-size: 2em;
+      }
+      .search-bar {
+        flex-direction: column;
+        gap: 15px;
+      }
+      .search-bar input,
+      .search-bar button {
+        max-width: 100%;
+      }
+      #property-grid {
+        grid-template-columns: 1fr; /* Stack cards on small screens */
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .back-arrow {
+        top: 10px;
+        right: 10px;
+      }
+      .buyer-container {
+        padding: 20px;
+      }
+      .buyer-container h1 {
+        font-size: 1.8em;
+      }
+      .property-card .info h3 {
+        font-size: 1.3em;
+      }
+      .property-card .info .price {
+        font-size: 1.1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="images/house-icon.webp" alt="Real Estate Logo">
+  </div>
+
+  <a href="#" class="back-arrow" onclick="logout()">Logout</a>
+
+  <div class="buyer-container">
+    <h1>Available Properties</h1>
+
+    <div class="search-bar">
+      <input type="text" id="search-input" placeholder="Search by title, location, or description...">
+      <button id="search-button">Search</button>
+    </div>
+
+    <div id="property-grid">
+      <!-- Property cards will be loaded here by JavaScript -->
+    </div>
+
+    <p id="no-results">No properties found matching your search criteria.</p>
+  </div>
+
+  <script>
+    // --- Data Source (Simulated from Seller Listings) ---
+    // In a real application, this would come from a backend API.
+    // For this simulation, we'll load properties from the seller's local storage.
+    let availableProperties = [];
+
+    // --- Functions ---
+
+    // Function to handle logout
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        // Clear any session-related data if necessary
+        // For this example, we just redirect to the login page
+        window.location.href = 'login (2).html';
+      }
+    }
+
+    // Function to load properties from seller's local storage
+    function loadAvailableProperties() {
+      const storedSellerProperties = localStorage.getItem('sellerProperties');
+      if (storedSellerProperties) {
+        availableProperties = JSON.parse(storedSellerProperties);
+      } else {
+        // Fallback if no seller properties are found (e.g., for initial testing)
+        availableProperties = [
+          {
+            id: 'prop1',
+            title: "Modern Family Home",
+            location: "Colombo",
+            price: "$120,000",
+            image: "https://images.unsplash.com/photo-1580582932707-52c5ee1029d0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            description: "A beautiful, spacious family home with 4 bedrooms, 3 baths, and a large garden. Located in a quiet, family-friendly neighborhood close to schools and amenities."
+          },
+          {
+            id: 'prop2',
+            title: "Luxury Apartment",
+            location: "Kandy",
+            price: "$90,000",
+            image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            description: "Stunning 2-bedroom apartment with panoramic city views. Features modern kitchen, spacious living area, and access to a rooftop pool and gym."
+          },
+          {
+            id: 'prop3',
+            title: "Countryside Villa",
+            location: "Galle",
+            price: "$150,000",
+            image: "https://images.unsplash.com/photo-1568605117036-add402c17514?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            description: "Charming villa nestled in the serene countryside. Perfect for a peaceful retreat, with 3 bedrooms, a private pool, and lush green surroundings."
+          },
+          {
+            id: 'prop4',
+            title: "Commercial Office Space",
+            location: "Colombo",
+            price: "$250,000",
+            image: "https://images.unsplash.com/photo-1521737711867-ee1ee9088f93?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            description: "Prime commercial office space in the heart of the business district. Ideal for startups or established businesses, with modern facilities and easy access."
+          }
+        ];
+      }
+      displayProperties(availableProperties); // Display all properties initially
+    }
+
+    // Function to display properties in the grid
+    function displayProperties(propertiesToDisplay) {
+      const propertyGrid = document.getElementById("property-grid");
+      const noResultsMessage = document.getElementById("no-results");
+      propertyGrid.innerHTML = ''; // Clear current grid
+
+      if (propertiesToDisplay.length === 0) {
+        noResultsMessage.style.display = 'block';
+        return;
+      } else {
+        noResultsMessage.style.display = 'none';
+      }
+
+      propertiesToDisplay.forEach((property) => {
+        const card = document.createElement("div");
+        card.className = "property-card";
+        card.innerHTML = `
+          <img src="${property.image}" alt="${property.title}">
+          <div class="info">
+            <h3>${property.title}</h3>
+            <p>Location: ${property.location}</p>
+            <p class="price">${property.price}</p>
+            <p class="description">${property.description}</p>
+          </div>
+          <div class="actions">
+            <button class="buy-now-btn" data-id="${property.id || property.title}">Buy Now</button>
+          </div>
+        `;
+        propertyGrid.appendChild(card);
+      });
+
+      // Add event listeners to "Buy Now" buttons
+      document.querySelectorAll('.buy-now-btn').forEach(button => {
+        button.addEventListener('click', handleBuyNow);
+      });
+    }
+
+    // Function to handle search
+    function handleSearch() {
+      const searchTerm = document.getElementById("search-input").value.toLowerCase();
+      const filteredProperties = availableProperties.filter(property =>
+        property.title.toLowerCase().includes(searchTerm) ||
+        property.location.toLowerCase().includes(searchTerm) ||
+        property.description.toLowerCase().includes(searchTerm)
+      );
+      displayProperties(filteredProperties);
+    }
+
+    // Function to handle "Buy Now" button click
+    function handleBuyNow(event) {
+      const propertyId = event.target.dataset.id;
+      const selectedProperty = availableProperties.find(p => (p.id === propertyId || p.title === propertyId)); // Find by ID or title
+
+      if (selectedProperty) {
+        if (confirm(`Are you sure you want to proceed with buying "${selectedProperty.title}" for ${selectedProperty.price}?`)) {
+          // Store transaction details in Local Storage for transaction.html
+          localStorage.setItem('pendingTransaction', JSON.stringify({
+            date: new Date().toLocaleDateString(),
+            property: selectedProperty.title,
+            amount: selectedProperty.price,
+            status: "Pending" // Initial status
+          }));
+
+          // Redirect to transaction.html
+          window.location.href = 'transaction.html';
+        }
+      } else {
+        alert("Error: Property not found.");
+      }
+    }
+
+    // --- Event Listeners & Initial Load ---
+    document.addEventListener("DOMContentLoaded", () => {
+      loadAvailableProperties(); // Load properties on page load
+
+      // Event listener for search button
+      document.getElementById("search-button").addEventListener("click", handleSearch);
+      // Event listener for pressing Enter in search input
+      document.getElementById("search-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          handleSearch();
+        }
+      });
+
+      // Subtle fade-in animation for buyer container
+      const buyerContainer = document.querySelector('.buyer-container');
+      const logo = document.querySelector('.logo');
+
+      if (buyerContainer && logo) {
+        logo.style.opacity = '0';
+        logo.style.transform = 'translateY(-20px)';
+        buyerContainer.style.opacity = '0';
+        buyerContainer.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+          logo.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+          buyerContainer.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+
+          logo.style.opacity = '1';
+          logo.style.transform = 'translateY(0)';
+          buyerContainer.style.opacity = '1';
+          buyerContainer.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

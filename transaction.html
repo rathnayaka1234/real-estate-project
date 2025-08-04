@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - Real Estate System</title>
+
+  <style>
+    /* General Resets & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f2f2f2, #e0e0e0); /* Soft gradient background */
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center; /* Center content vertically */
+      padding: 20px;
+    }
+
+    /* Back Arrow */
+    .back-arrow {
+      font-size: 1.1em;
+      padding: 12px 25px;
+      cursor: pointer;
+      color: #2c3e50;
+      background-color: #ecf0f1;
+      border-bottom: 1px solid #dcdcdc;
+      text-decoration: none;
+      display: inline-block;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      z-index: 10;
+    }
+
+    .back-arrow:hover {
+      background-color: #dce0e1;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 20px;
+    }
+
+    .logo img {
+      max-width: 120px;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Transaction Container */
+    .transaction-container {
+      max-width: 600px; /* Adjusted max-width for payment form */
+      width: 95%;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      opacity: 0; /* Initial state for JS animation */
+      transform: translateY(20px); /* Initial state for JS animation */
+    }
+
+    .transaction-container h2 {
+      font-size: 2.2em;
+      color: #34495e;
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .transaction-container h2::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background-color: #3498db;
+      border-radius: 2px;
+    }
+
+    /* Transaction Summary */
+    .transaction-summary {
+      background-color: #f8f8f8;
+      border: 1px solid #eee;
+      border-radius: 10px;
+      padding: 25px;
+      margin-bottom: 30px;
+      text-align: left;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .transaction-summary p {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .transaction-summary p strong {
+      color: #34495e;
+      font-size: 1.2em;
+    }
+
+    .transaction-summary .amount {
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #27ae60; /* Green for amount */
+      margin-top: 15px;
+      text-align: right;
+    }
+
+    /* Payment Options */
+    .payment-options h3 {
+      font-size: 1.6em;
+      color: #34495e;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .payment-form label {
+      display: block;
+      text-align: left;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .payment-form input {
+      width: calc(100% - 20px);
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      font-size: 1.1em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .payment-form input:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+      outline: none;
+    }
+
+    .card-details-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-details-row > div {
+      flex: 1;
+    }
+
+    .card-details-row input {
+      width: 100%; /* Override calc for flex items */
+      margin-bottom: 0; /* Remove extra margin */
+    }
+
+    .payment-form button {
+      width: 100%;
+      padding: 15px;
+      background-color: #2ecc71; /* Green for pay button */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2em;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .payment-form button:hover {
+      background-color: #27ae60;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    .payment-form button:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Payment Status Message */
+    #payment-status {
+      margin-top: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+      display: none; /* Hidden by default */
+    }
+
+    .status-success {
+      color: #27ae60;
+    }
+
+    .status-error {
+      color: #e74c3c;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .back-arrow {
+        top: 15px;
+        left: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+      }
+      .logo {
+        margin-bottom: 20px;
+      }
+      .logo img {
+        max-width: 100px;
+      }
+      .transaction-container {
+        padding: 30px;
+      }
+      .transaction-container h2 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+      }
+      .transaction-summary p {
+        font-size: 1em;
+      }
+      .transaction-summary .amount {
+        font-size: 1.5em;
+      }
+      .payment-options h3 {
+        font-size: 1.4em;
+      }
+      .payment-form input {
+        padding: 12px;
+        font-size: 1em;
+      }
+      .card-details-row {
+        flex-direction: column;
+        gap: 0; /* Remove gap when stacked */
+      }
+      .card-details-row input {
+        margin-bottom: 20px; /* Re-add margin for stacked inputs */
+      }
+      .payment-form button {
+        padding: 12px;
+        font-size: 1.1em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .back-arrow {
+        top: 10px;
+        left: 10px;
+      }
+      .transaction-container {
+        padding: 25px;
+      }
+      .transaction-container h2 {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+      }
+      .transaction-summary {
+        padding: 20px;
+      }
+      .payment-form label {
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="images/house-icon.webp" alt="Real Estate Logo">
+  </div>
+
+  <a href="#" class="back-arrow" onclick="goBack()">← Back</a>
+
+  <div class="transaction-container">
+    <h2>Complete Your Payment</h2>
+
+    <div class="transaction-summary">
+      <p>Property: <strong id="summary-property">N/A</strong></p>
+      <p>Date: <strong id="summary-date">N/A</strong></p>
+      <div class="amount">Total: <span id="summary-amount">N/A</span></div>
+    </div>
+
+    <div class="payment-options">
+      <h3>Card Payment Details</h3>
+      <form id="payment-form">
+        <label for="card-number">Card Number</label>
+        <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" required pattern="[0-9]{13,19}" title="Card number must be 13-19 digits">
+
+        <label for="card-name">Name on Card</label>
+        <input type="text" id="card-name" placeholder="Full Name" required>
+
+        <div class="card-details-row">
+          <div>
+            <label for="expiry-date">Expiry Date</label>
+            <input type="text" id="expiry-date" placeholder="MM/YY" required pattern="(0[1-9]|1[0-2])\/([0-9]{2})" title="Format: MM/YY">
+          </div>
+          <div>
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" placeholder="XXX" required pattern="[0-9]{3,4}" title="CVV must be 3 or 4 digits">
+          </div>
+        </div>
+
+        <button type="submit">Pay Now</button>
+      </form>
+      <p id="payment-status"></p>
+    </div>
+  </div>
+
+  <script>
+    // Global variable to store the current transaction being processed
+    let currentTransaction = null;
+
+    // Function to go back in browser history
+    function goBack() {
+      window.history.back();
+    }
+
+    // Function to load transaction details from Local Storage
+    function loadTransactionDetails() {
+      const pendingTransaction = localStorage.getItem('pendingTransaction');
+      const summaryProperty = document.getElementById('summary-property');
+      const summaryDate = document.getElementById('summary-date');
+      const summaryAmount = document.getElementById('summary-amount');
+
+      if (pendingTransaction) {
+        currentTransaction = JSON.parse(pendingTransaction);
+        summaryProperty.textContent = currentTransaction.property;
+        summaryDate.textContent = currentTransaction.date;
+        summaryAmount.textContent = currentTransaction.amount;
+      } else {
+        // If no pending transaction, redirect to buyer page or show an error
+        summaryProperty.textContent = 'No transaction found.';
+        summaryDate.textContent = 'N/A';
+        summaryAmount.textContent = 'N/A';
+        alert('No pending transaction details found. Redirecting to properties page.');
+        window.location.href = 'buyer.html'; // Redirect if no transaction
+      }
+    }
+
+    // Function to handle payment form submission
+    document.getElementById('payment-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const cardNumber = document.getElementById('card-number').value.trim();
+      const cardName = document.getElementById('card-name').value.trim();
+      const expiryDate = document.getElementById('expiry-date').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+      const paymentStatus = document.getElementById('payment-status');
+      const payButton = this.querySelector('button[type="submit"]');
+
+      // Simple client-side validation (more robust validation needed in real app)
+      if (!cardNumber || !cardName || !expiryDate || !cvv) {
+        paymentStatus.textContent = 'Please fill in all card details.';
+        paymentStatus.className = 'status-error';
+        paymentStatus.style.display = 'block';
+        return;
+      }
+
+      // Disable button and show processing message
+      payButton.disabled = true;
+      payButton.textContent = 'Processing...';
+      paymentStatus.textContent = 'Processing your payment...';
+      paymentStatus.className = ''; // Clear previous status classes
+      paymentStatus.style.display = 'block';
+
+      // Simulate API call to payment gateway
+      setTimeout(() => {
+        const isPaymentSuccessful = Math.random() > 0.2; // 80% chance of success
+
+        if (isPaymentSuccessful) {
+          paymentStatus.textContent = 'Payment Successful! Thank you for your purchase.';
+          paymentStatus.className = 'status-success';
+
+          // Update transaction status to "Completed"
+          if (currentTransaction) {
+            currentTransaction.status = "Completed";
+            // In a real app, you'd send this to a backend to update the database
+            // For now, we'll just log it and clear the pending transaction
+            console.log("Transaction Completed:", currentTransaction);
+          }
+
+          // Clear the pending transaction from local storage after successful payment
+          localStorage.removeItem('pendingTransaction');
+
+          // Optionally, redirect to a confirmation page or back to transaction history
+          setTimeout(() => {
+            alert('Payment successful! You will now be redirected to your transaction history.');
+            window.location.href = 'transaction-history.html'; // Assuming you have a separate history page
+            // If you want to go back to the buyer dashboard: window.location.href = 'buyer.html';
+          }, 2000);
+
+        } else {
+          paymentStatus.textContent = 'Payment Failed. Please check your details or try again.';
+          paymentStatus.className = 'status-error';
+          payButton.disabled = false;
+          payButton.textContent = 'Pay Now';
+        }
+      }, 2000); // Simulate 2-second processing time
+    });
+
+    // Initial load and animation on DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", () => {
+      loadTransactionDetails(); // Load transaction details when page loads
+
+      // Subtle fade-in animation for transaction container
+      const transactionContainer = document.querySelector('.transaction-container');
+      const logo = document.querySelector('.logo');
+
+      if (transactionContainer && logo) {
+        logo.style.opacity = '0';
+        logo.style.transform = 'translateY(-20px)';
+        transactionContainer.style.opacity = '0';
+        transactionContainer.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+          logo.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+          transactionContainer.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+
+          logo.style.opacity = '1';
+          logo.style.transform = 'translateY(0)';
+          transactionContainer.style.opacity = '1';
+          transactionContainer.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

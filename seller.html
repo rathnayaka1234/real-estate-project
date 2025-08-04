@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seller Dashboard - Real Estate System</title>
+
+  <style>
+    /* General Resets & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f9f9f9, #e0e0e0); /* Soft gradient background */
+      color: #333;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Back Arrow */
+    .back-arrow {
+      font-size: 1.1em;
+      padding: 12px 25px;
+      cursor: pointer;
+      color: #2c3e50;
+      background-color: #ecf0f1;
+      border-bottom: 1px solid #dcdcdc;
+      text-decoration: none;
+      display: inline-block;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      z-index: 10;
+    }
+
+    .back-arrow:hover {
+      background-color: #dce0e1;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+      margin-top: 20px;
+    }
+
+    .logo img {
+      max-width: 120px;
+      height: auto;
+      border-radius: 50%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Seller Container */
+    .seller-container {
+      max-width: 700px; /* Increased max-width for better form layout */
+      width: 95%;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      margin-bottom: 40px; /* Space below container */
+      opacity: 0; /* Initial state for JS animation */
+      transform: translateY(20px); /* Initial state for JS animation */
+    }
+
+    .seller-container h2 {
+      font-size: 2.2em;
+      color: #34495e;
+      margin-bottom: 30px;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .seller-container h2::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background-color: #27ae60; /* Green accent */
+      border-radius: 2px;
+    }
+
+    /* Form Inputs */
+    #seller-form input,
+    #seller-form textarea {
+      width: calc(100% - 20px);
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      font-size: 1.1em;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #seller-form input:focus,
+    #seller-form textarea:focus {
+      border-color: #27ae60; /* Green border on focus */
+      box-shadow: 0 0 8px rgba(39, 174, 96, 0.3);
+      outline: none;
+    }
+
+    #seller-form textarea {
+      resize: vertical; /* Allow vertical resizing */
+      min-height: 100px;
+    }
+
+    /* Image Preview */
+    #image-preview-container {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #image-preview {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      display: none; /* Hidden by default */
+      object-fit: cover;
+    }
+
+    /* Submit Button */
+    #seller-form button[type="submit"] {
+      width: 100%;
+      padding: 15px;
+      background-color: #27ae60; /* Primary green */
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2em;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    #seller-form button[type="submit"]:hover {
+      background-color: #219150; /* Darker green on hover */
+      transform: translateY(-2px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    }
+
+    #seller-form button[type="submit"]:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Listed Properties Section */
+    #listed-properties {
+      max-width: 700px;
+      width: 95%;
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+      text-align: center;
+      margin-top: 20px; /* Space above this container */
+      opacity: 0; /* Initial state for JS animation */
+      transform: translateY(20px); /* Initial state for JS animation */
+    }
+
+    #listed-properties h3 {
+      font-size: 1.8em;
+      color: #34495e;
+      margin-bottom: 25px;
+      position: relative;
+      padding-bottom: 8px;
+    }
+
+    #listed-properties h3::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 2px;
+      background-color: #3498db; /* Blue accent */
+      border-radius: 1px;
+    }
+
+    #property-listings {
+      list-style: none;
+      padding: 0;
+      text-align: left; /* Align list items to the left */
+    }
+
+    #property-listings li {
+      background: #f0f8ff; /* Light blue background for each listing */
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      display: flex; /* Use flexbox for layout within list item */
+      flex-wrap: wrap; /* Allow content to wrap */
+      gap: 15px; /* Space between elements */
+      align-items: flex-start; /* Align items to the top */
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    #property-listings li:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+    }
+
+    #property-listings li .listing-image {
+      flex-shrink: 0; /* Don't shrink image */
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #ccc;
+    }
+
+    #property-listings li .listing-details {
+      flex-grow: 1; /* Allow details to take available space */
+      min-width: 200px; /* Ensure details don't get too small */
+    }
+
+    #property-listings li .listing-details strong {
+      display: block;
+      font-size: 1.3em;
+      color: #34495e;
+      margin-bottom: 5px;
+    }
+
+    #property-listings li .listing-details p {
+      font-size: 0.95em;
+      color: #555;
+      margin-bottom: 3px;
+    }
+
+    #property-listings li .listing-details small {
+      display: block;
+      font-size: 0.85em;
+      color: #777;
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    #property-listings li .listing-actions {
+      flex-basis: 100%; /* Buttons on new line for better layout */
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: flex-end; /* Align buttons to the right */
+    }
+
+    #property-listings li .listing-actions button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9em;
+      font-weight: 600;
+      transition: background-color 0.2s ease;
+    }
+
+    #property-listings li .listing-actions .edit-btn {
+      background-color: #3498db; /* Blue for edit */
+      color: white;
+    }
+
+    #property-listings li .listing-actions .edit-btn:hover {
+      background-color: #2980b9;
+    }
+
+    #property-listings li .listing-actions .delete-btn {
+      background-color: #e74c3c; /* Red for delete */
+      color: white;
+    }
+
+    #property-listings li .listing-actions .delete-btn:hover {
+      background-color: #c0392b;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .back-arrow {
+        top: 15px;
+        left: 15px;
+        padding: 10px 20px;
+        font-size: 1em;
+      }
+
+      .logo {
+        margin-bottom: 20px;
+      }
+
+      .logo img {
+        max-width: 100px;
+      }
+
+      .seller-container,
+      #listed-properties {
+        padding: 30px;
+        margin-top: 15px;
+        margin-bottom: 30px;
+      }
+
+      .seller-container h2 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+      }
+
+      #listed-properties h3 {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+      }
+
+      #seller-form input,
+      #seller-form textarea {
+        padding: 12px;
+        font-size: 1em;
+      }
+
+      #seller-form button[type="submit"] {
+        padding: 12px;
+        font-size: 1.1em;
+      }
+
+      #property-listings li {
+        flex-direction: column; /* Stack image and details vertically */
+        align-items: center;
+        text-align: center;
+      }
+
+      #property-listings li .listing-image {
+        width: 100%;
+        height: 180px; /* Larger image on small screens */
+        margin-bottom: 15px;
+      }
+
+      #property-listings li .listing-details {
+        min-width: unset; /* Remove min-width constraint */
+        width: 100%;
+      }
+
+      #property-listings li .listing-actions {
+        justify-content: center; /* Center buttons */
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      .back-arrow {
+        top: 10px;
+        left: 10px;
+      }
+      .seller-container,
+      #listed-properties {
+        padding: 25px;
+      }
+      .seller-container h2 {
+        font-size: 1.6em;
+        margin-bottom: 20px;
+      }
+      #listed-properties h3 {
+        font-size: 1.4em;
+      }
+      #property-listings li .listing-actions {
+        flex-direction: column; /* Stack buttons vertically */
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="images/house-icon.webp" alt="Real Estate Logo">
+  </div>
+
+  <a href="#" class="back-arrow" onclick="goBack()">← Back</a>
+
+  <div class="seller-container">
+    <h2>List Your Property</h2>
+    <form id="seller-form">
+      <input type="text" id="title" placeholder="Property Title" required>
+      <input type="text" id="location" placeholder="Location" required>
+      <input type="text" id="price" placeholder="Price" required>
+      <input type="url" id="image" placeholder="Image URL" required>
+      <div id="image-preview-container">
+        <img id="image-preview" src="#" alt="Image Preview">
+      </div>
+      <textarea id="description" placeholder="Property Description" required></textarea>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div id="listed-properties">
+    <h3>Your Listings:</h3>
+    <ul id="property-listings">
+      <!-- Property listings will be loaded here by JavaScript -->
+    </ul>
+  </div>
+
+  <script>
+    // Global array to store properties
+    let properties = [];
+
+    // Function to go back in browser history
+    function goBack() {
+      window.history.back();
+    }
+
+    // Function to save properties to Local Storage
+    function saveProperties() {
+      localStorage.setItem('sellerProperties', JSON.stringify(properties));
+    }
+
+    // Function to load properties from Local Storage
+    function loadProperties() {
+      const storedProperties = localStorage.getItem('sellerProperties');
+      if (storedProperties) {
+        properties = JSON.parse(storedProperties);
+        displayProperties();
+      }
+    }
+
+    // Function to display properties in the UI
+    function displayProperties() {
+      const propertyListings = document.getElementById("property-listings");
+      propertyListings.innerHTML = ''; // Clear current listings
+
+      if (properties.length === 0) {
+        propertyListings.innerHTML = '<p style="text-align: center; color: #777;">No properties listed yet. Start by adding one above!</p>';
+        return;
+      }
+
+      properties.forEach((property, index) => {
+        const listItem = document.createElement("li");
+        listItem.dataset.index = index; // Store index for easy access
+
+        listItem.innerHTML = `
+          <img src="${property.image}" alt="${property.title}" class="listing-image">
+          <div class="listing-details">
+            <strong>${property.title}</strong>
+            <p>Location: ${property.location}</p>
+            <p>Price: ${property.price}</p>
+            <small>${property.description}</small>
+          </div>
+          <div class="listing-actions">
+            <button class="edit-btn" data-index="${index}">Edit</button>
+            <button class="delete-btn" data-index="${index}">Delete</button>
+          </div>
+        `;
+        propertyListings.appendChild(listItem);
+      });
+
+      // Add event listeners for edit and delete buttons
+      document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', editProperty);
+      });
+      document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', deleteProperty);
+      });
+    }
+
+    // Function to handle image URL input and display preview
+    document.getElementById("image").addEventListener("input", function() {
+      const imageUrl = this.value.trim();
+      const imagePreview = document.getElementById("image-preview");
+      const imagePreviewContainer = document.getElementById("image-preview-container");
+
+      if (imageUrl) {
+        imagePreview.src = imageUrl;
+        imagePreviewContainer.style.display = 'block';
+        // Optional: Add error handling for broken images
+        imagePreview.onerror = () => {
+          imagePreview.src = 'https://via.placeholder.com/150?text=Image+Error'; // Placeholder for broken image
+        };
+      } else {
+        imagePreviewContainer.style.display = 'none';
+        imagePreview.src = '#'; // Reset src
+      }
+    });
+
+    // Function to handle form submission
+    document.getElementById("seller-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById("title").value.trim();
+      const location = document.getElementById("location").value.trim();
+      const price = document.getElementById("price").value.trim();
+      const image = document.getElementById("image").value.trim();
+      const description = document.getElementById("description").value.trim();
+
+      // Basic validation
+      if (!title || !location || !price || !image || !description) {
+        alert("Please fill out all fields.");
+        return;
+      }
+
+      const newProperty = { title, location, price, image, description };
+
+      // Check if we are editing or adding a new property
+      const submitButton = this.querySelector('button[type="submit"]');
+      if (submitButton.dataset.editingIndex !== undefined) {
+        const index = parseInt(submitButton.dataset.editingIndex);
+        properties[index] = newProperty; // Update existing property
+        alert("Property updated successfully!");
+        submitButton.textContent = "Submit"; // Reset button text
+        delete submitButton.dataset.editingIndex; // Remove editing state
+      } else {
+        properties.push(newProperty); // Add new property
+        alert("Property listed successfully!");
+      }
+
+      saveProperties(); // Save to local storage
+      displayProperties(); // Update UI
+      this.reset(); // Clear form
+      document.getElementById("image-preview-container").style.display = 'none'; // Hide preview
+    });
+
+    // Function to handle editing a property
+    function editProperty(event) {
+      const indexToEdit = parseInt(event.target.dataset.index);
+      const propertyToEdit = properties[indexToEdit];
+
+      // Populate the form with existing data
+      document.getElementById("title").value = propertyToEdit.title;
+      document.getElementById("location").value = propertyToEdit.location;
+      document.getElementById("price").value = propertyToEdit.price;
+      document.getElementById("image").value = propertyToEdit.image;
+      document.getElementById("description").value = propertyToEdit.description;
+
+      // Show image preview
+      document.getElementById("image-preview").src = propertyToEdit.image;
+      document.getElementById("image-preview-container").style.display = 'block';
+
+      // Change submit button text and store editing index
+      const submitButton = document.querySelector('#seller-form button[type="submit"]');
+      submitButton.textContent = "Update Property";
+      submitButton.dataset.editingIndex = indexToEdit;
+
+      // Scroll to the top of the form
+      document.getElementById("seller-form").scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Function to handle deleting a property
+    function deleteProperty(event) {
+      const indexToDelete = parseInt(event.target.dataset.index);
+      if (confirm("Are you sure you want to delete this property listing?")) {
+        properties.splice(indexToDelete, 1); // Remove from array
+        saveProperties(); // Save changes
+        displayProperties(); // Update UI
+        alert("Property deleted successfully!");
+      }
+    }
+
+    // Initial load and animation on DOMContentLoaded
+    document.addEventListener("DOMContentLoaded", () => {
+      loadProperties(); // Load properties when page loads
+
+      // Subtle fade-in animation for containers
+      const sellerContainer = document.querySelector('.seller-container');
+      const listedPropertiesContainer = document.getElementById('listed-properties');
+      const logo = document.querySelector('.logo');
+
+      if (sellerContainer && listedPropertiesContainer && logo) {
+        // Initial state for animation (already set in CSS for containers)
+        logo.style.opacity = '0';
+        logo.style.transform = 'translateY(-20px)';
+
+        setTimeout(() => {
+          // Apply transition properties
+          sellerContainer.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+          listedPropertiesContainer.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+          logo.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+
+          // Final state for animation
+          sellerContainer.style.opacity = '1';
+          sellerContainer.style.transform = 'translateY(0)';
+          listedPropertiesContainer.style.opacity = '1';
+          listedPropertiesContainer.style.transform = 'translateY(0)';
+          logo.style.opacity = '1';
+          logo.style.transform = 'translateY(0)';
+        }, 100);
+      }
+    });
+  </script>
+</body>
+</html>

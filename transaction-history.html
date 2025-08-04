@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Transaction History - Real Estate System</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to bottom right, #f7f7f7, #e3e3e3);
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 15px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo img {
+      max-width: 100px;
+      border-radius: 50%;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .back-arrow {
+      font-size: 1em;
+      padding: 10px 20px;
+      color: #2c3e50;
+      background-color: #ecf0f1;
+      border-radius: 8px;
+      text-decoration: none;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .back-arrow:hover {
+      background-color: #dce0e1;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .history-container {
+      max-width: 800px;
+      width: 100%;
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .history-container h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2em;
+      color: #34495e;
+    }
+
+    .transaction-item {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+
+    .transaction-item p {
+      margin-bottom: 8px;
+    }
+
+    .transaction-item .amount {
+      font-weight: bold;
+      color: #27ae60;
+      font-size: 1.2em;
+    }
+
+    .no-history {
+      text-align: center;
+      color: #999;
+      font-size: 1.1em;
+    }
+
+    @media (max-width: 600px) {
+      .history-container {
+        padding: 25px;
+      }
+
+      .transaction-item {
+        padding: 15px;
+      }
+
+      .transaction-item .amount {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="images/house-icon.webp" alt="Real Estate Logo">
+  </div>
+
+  <a href="buyer.html" class="back-arrow">← Back</a>
+
+  <div class="history-container">
+    <h2>Your Transaction History</h2>
+    <div id="history-list">
+      <!-- Transactions will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const historyList = document.getElementById('history-list');
+
+      // Try to fetch completed transactions from localStorage
+      const storedTransactions = localStorage.getItem('completedTransactions');
+      let transactions = [];
+
+      if (storedTransactions) {
+        transactions = JSON.parse(storedTransactions);
+      }
+
+      if (transactions.length === 0) {
+        historyList.innerHTML = `<p class="no-history">No transactions found.</p>`;
+        return;
+      }
+
+      transactions.forEach(tx => {
+        const item = document.createElement('div');
+        item.className = 'transaction-item';
+        item.innerHTML = `
+          <p><strong>Property:</strong> ${tx.property}</p>
+          <p><strong>Date:</strong> ${tx.date}</p>
+          <p><strong>Status:</strong> ${tx.status}</p>
+          <p class="amount">Amount Paid: ${tx.amount}</p>
+        `;
+        historyList.appendChild(item);
+      });
+    });
+  </script>
+</body>
+</html>
